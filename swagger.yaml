@@ -169,7 +169,7 @@ definitions:
             description: Default zoom level to use when selecting route on map
           stops:
             type: array
-            description: Locations where the bus stops along the route
+            description: Locations where the bus stops along the route. Stops are in the order at which they are arrived at.
             items:
               properties:
                 stopID:
@@ -184,9 +184,6 @@ definitions:
                   type: number
                   format: float
                   description: Longitude of stop
-                order:
-                  type: integer
-                  description: The order this stop is used relative to the other stops
   VehiclesResultObject:
     properties:
       data:
