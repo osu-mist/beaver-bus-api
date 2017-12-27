@@ -204,7 +204,7 @@ definitions:
         description: vehicleID
       type:
         type: string
-        description: route
+        description: vehicle
       attributes:
         properties:
           routeID:
@@ -254,7 +254,7 @@ definitions:
         description: arrivalID
       type:
         type: string
-        description: route
+        description: arrival
       attributes:
         properties:
           routeID:
