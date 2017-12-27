@@ -227,7 +227,7 @@ definitions:
             description: Speed of vehicle (MPH)
           heading:
             type: integer
-            description: Compass heading of vehicle (0-359)
+            description: Compass heading of vehicle (0-359, where 0 is north)
           age:
             type: integer
             description: Seconds since vehicle position was updated
