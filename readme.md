@@ -1,6 +1,6 @@
-# Web API Skeleton
+# Beaver Bus API
 
-Skeleton for Dropwizard Web APIs.
+Get bus information for OSU's bus system.
 
 ### Generate Keys
 
