@@ -228,9 +228,10 @@ definitions:
           heading:
             type: integer
             description: Compass heading of vehicle (0-359, where 0 is north)
-          age:
-            type: integer
-            description: Seconds since vehicle position was updated
+          lastUpdated:
+            type: string
+            format: date
+            description: Time at which vehicle's position was updated
           onRoute:
             type: boolean
             description: Whether the vehicle is on its route
@@ -272,9 +273,6 @@ definitions:
                   type: string
                   format: date
                   description: Time and date that route is expected to arrive at stop
-                secondsUntilArrival:
-                  type: integer
-                  description: Seconds until expected arrival
                 arriving:
                   type: boolean
                   description: Whether the vehicle is arriving
