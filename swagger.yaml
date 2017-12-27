@@ -145,6 +145,8 @@ definitions:
       type:
         type: string
         description: route
+      links:
+        $ref: "#/definitions/SelfLink"
       attributes:
         properties:
           description:
@@ -202,6 +204,8 @@ definitions:
       type:
         type: string
         description: vehicle
+      links:
+        $ref: "#/definitions/SelfLink"
       attributes:
         properties:
           routeID:
@@ -253,6 +257,20 @@ definitions:
       type:
         type: string
         description: arrival
+      links:
+        properties:
+          route:
+            type: string
+            format: url
+            description: Link to route resource associated with arrival
+          stop:
+            type: string
+            format: url
+            description: Link to stop resource associated with arrival
+          self:
+            type: string
+            format: url
+            description: Self link of arrival
       attributes:
         properties:
           routeID:
@@ -276,6 +294,12 @@ definitions:
                 vehicleID:
                   type: string
                   description: vehicleID of vehicle that is arriving
+  SelfLink:
+    properties:
+      self:
+        type: string
+        format: url
+        description: Self link of resource
   Error:
     properties:
       status:
