@@ -273,9 +273,6 @@ definitions:
                   type: string
                   format: date
                   description: Time and date that route is expected to arrive at stop
-                arriving:
-                  type: boolean
-                  description: Whether the vehicle is arriving
                 vehicleID:
                   type: string
                   description: vehicleID of vehicle that is arriving
