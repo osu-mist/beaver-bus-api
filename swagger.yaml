@@ -98,23 +98,8 @@ paths:
           description: Successful response
           schema:
             $ref: '#/definitions/ArrivalsResultObject'
-  /arrivals/{arrivalID}:
-    get:
-      description: Get a single arrival for a route and stop
-      parameters:
-        - in: path
-          name: arrivalID
-          required: true
-          description: "arrivalID for arrival"
-          type: string
-        - $ref: '#/parameters/pretty'
-      responses:
-        200:
-          description: Successful response
-          schema:
-            $ref: '#/definitions/ArrivalResultObject'
         404:
-          description: Vehicle not found
+          description: No arrivals match the query
           schema:
             $ref: "#/definitions/Error"
 
@@ -270,7 +255,7 @@ definitions:
           self:
             type: string
             format: url
-            description: Self link of arrival
+            description: Self link of arrival in format /arrivals?routeID=x&stopID=y
       attributes:
         properties:
           routeID:
