@@ -248,10 +248,6 @@ definitions:
             type: string
             format: url
             description: Link to route resource associated with arrival
-          stop:
-            type: string
-            format: url
-            description: Link to stop resource associated with arrival
           self:
             type: string
             format: url
@@ -263,7 +259,7 @@ definitions:
             description: routeID for route of vehicle
           stopID:
             type: string
-            description: Name of vehicle
+            description: Unique identifier for a stop
           arrivals:
             type: array
             description: Times that this route is arriving at this stop
