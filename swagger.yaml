@@ -1,34 +1,107 @@
 swagger: '2.0'
 info:
-  title: Web API Skeleton
-  description: Skeleton for Dropwizard Web APIs
-  version: '0.0'
+  title: Beaver Bus API
+  description: Get Corvallis campus bus routes, stops, ETAs, and current GPS locations.
+  version: '1.0'
   license:
     name: GNU Affero General Public License Version 3
     url: http://www.gnu.org/licenses/agpl-3.0.en.html
 externalDocs:
   description: GitHub Repository
-  url: https://github.com/osu-mist/web-api-skeleton
-host: localhost
+  url: https://github.com/osu-mist/beaver-bus-api
 schemes:
-  - http
-basePath: /api/v0
-consumes:
-  - text/plain
+  - https
+basePath: /v1/beaverbus
 produces:
-  - text/plain
+  - application/json
 paths:
-  /:
+  /routes:
     get:
-      summary: Get information
-      description: Build and runtime information about the application.
+      description: "Get bus routes."
       parameters:
         - $ref: '#/parameters/pretty'
       responses:
         200:
-          description: Object containing information
+          description: Successful response
           schema:
-            $ref: '#/definitions/Info'
+            $ref: '#/definitions/RoutesResultObject'
+  /routes/{routeID}:
+    get:
+      description: "Get bus route by routeID"
+      parameters:
+        - in: path
+          name: routeID
+          required: true
+          description: "routeID for route"
+          type: string
+        - $ref: '#/parameters/pretty'
+      responses:
+        200:
+          description: Successful response
+          schema:
+            $ref: '#/definitions/RouteResultObject'
+        404:
+          description: Route not found
+          schema:
+            $ref: "#/definitions/Error"
+  /vehicles:
+    get:
+      description: "Get current locations of vehicles"
+      parameters:
+        - in: query
+          name: routeID
+          required: false
+          description: "Filter by route"
+          type: string
+        - $ref: '#/parameters/pretty'
+      responses:
+        200:
+          description: Successful response
+          schema:
+            $ref: '#/definitions/VehiclesResultObject'
+  /vehicles/{vehicleID}:
+    get:
+      description: "Get current location of a vehicle by vehicleID"
+      parameters:
+        - in: path
+          name: vehicleID
+          required: true
+          description: "vehicleID for vehicle"
+          type: string
+        - $ref: '#/parameters/pretty'
+      responses:
+        200:
+          description: Successful response
+          schema:
+            $ref: '#/definitions/VehicleResultObject'
+        404:
+          description: Vehicle not found
+          schema:
+            $ref: "#/definitions/Error"
+  /arrivals:
+    get:
+      description: Get arrival times for stops
+      parameters:
+        - in: query
+          name: routeID
+          required: false
+          description: "Filter by routeID"
+          type: string
+        - in: query
+          name: stopId
+          required: false
+          description: "Filter by stopID"
+          type: string
+        - $ref: '#/parameters/pretty'
+      responses:
+        200:
+          description: Successful response
+          schema:
+            $ref: '#/definitions/ArrivalsResultObject'
+        404:
+          description: No arrivals match the query
+          schema:
+            $ref: "#/definitions/Error"
 
 parameters:
   pretty:
@@ -39,23 +112,172 @@ parameters:
     description: If true, JSON response will be pretty-printed
 
 definitions:
-  Info:
+  RoutesResultObject:
     properties:
-      name:
+      data:
+        type: array
+        items:
+          $ref: "#/definitions/RouteResourceObject"
+  RouteResultObject:
+    properties:
+      data:
+        $ref: "#/definitions/RouteResourceObject"
+  RouteResourceObject:
+    properties:
+      id:
         type: string
-        description: Name of the API.
-      time:
+        description: routeID
+      type:
         type: string
-        description: Build time in ISO 8601 format.
-      unixTime:
-        type: integer
-        description: Build time as milliseconds since the unix epoch.
-      commit:
+        description: route
+      links:
+        $ref: "#/definitions/SelfLink"
+      attributes:
+        properties:
+          description:
+            type: string
+            description: Description of bus route
+          encodedPolyline:
+            type: string
+            description: Encoded polyline for mapping route using Google's mapping APIs
+          mapColor:
+            type: string
+            description: Hexadecimal color value for route line on map
+          latitude:
+            type: number
+            format: float
+            description: Default latitude to go to when selecting route on map
+          longitude:
+            type: number
+            format: float
+            description: Default longitude to go to when selecting route on map
+          zoomLevel:
+            type: integer
+            description: Default zoom level to use when selecting route on map
+          stops:
+            type: array
+            description: Locations where the bus stops along the route. Stops are in the order at which they are arrived at.
+            items:
+              properties:
+                stopID:
+                  type: string
+                description:
+                  type: string
+                latitude:
+                  type: number
+                  format: float
+                  description: Latitude of stop
+                longitude:
+                  type: number
+                  format: float
+                  description: Longitude of stop
+  VehiclesResultObject:
+    properties:
+      data:
+        type: array
+        items:
+          $ref: "#/definitions/VehicleResourceObject"
+  VehicleResultObject:
+    properties:
+      data:
+        $ref: "#/definitions/VehicleResourceObject"
+  VehicleResourceObject:
+    properties:
+      id:
         type: string
-        description: Git commit hash of the revision which was built.
-      documentation:
+        description: vehicleID
+      type:
         type: string
-        description: Filename of the swagger specification for the API.
+        description: vehicle
+      links:
+        $ref: "#/definitions/SelfLink"
+      attributes:
+        properties:
+          routeID:
+            type: string
+            description: routeID for route of vehicle
+          name:
+            type: string
+            description: Name of vehicle
+          latitude:
+            type: number
+            format: float
+            description: Latitude of vehicle's position
+          longitude:
+            type: number
+            format: float
+            description: Longitude of vehicle's position
+          speed:
+            type: number
+            format: float
+            description: Speed of vehicle (MPH)
+          heading:
+            type: integer
+            description: Compass heading of vehicle (0-359, where 0 is north)
+          lastUpdated:
+            type: string
+            format: date
+            description: Time at which vehicle's position was updated
+          onRoute:
+            type: boolean
+            description: Whether the vehicle is on its route
+          delayed:
+            type: boolean
+            description: Whether the vehicle is delayed
+  ArrivalsResultObject:
+    properties:
+      data:
+        type: array
+        items:
+          $ref: "#/definitions/ArrivalResourceObject"
+  ArrivalResultObject:
+    properties:
+      data:
+        $ref: "#/definitions/ArrivalResourceObject"
+  ArrivalResourceObject:
+    properties:
+      id:
+        type: string
+        description: arrivalID
+      type:
+        type: string
+        description: arrival
+      links:
+        properties:
+          route:
+            type: string
+            format: url
+            description: Link to route resource associated with arrival
+          self:
+            type: string
+            format: url
+            description: Self link of arrival in format /arrivals?routeID=x&stopID=y
+      attributes:
+        properties:
+          routeID:
+            type: string
+            description: routeID for route of vehicle
+          stopID:
+            type: string
+            description: Unique identifier for a stop
+          arrivals:
+            type: array
+            description: Times that this route is arriving at this stop
+            items:
+              properties:
+                eta:
+                  type: string
+                  format: date
+                  description: Time and date that route is expected to arrive at stop
+                vehicleID:
+                  type: string
+                  description: vehicleID of vehicle that is arriving
+  SelfLink:
+    properties:
+      self:
+        type: string
+        format: url
+        description: Self link of resource
   Error:
     properties:
       status:
