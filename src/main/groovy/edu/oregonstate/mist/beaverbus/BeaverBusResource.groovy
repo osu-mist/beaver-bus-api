@@ -2,6 +2,7 @@ package edu.oregonstate.mist.beaverbus
 
 import com.codahale.metrics.annotation.Timed
 import edu.oregonstate.mist.api.Resource
+import edu.oregonstate.mist.api.jsonapi.ResultObject
 import groovy.transform.CompileStatic
 
 import javax.annotation.security.PermitAll
@@ -27,8 +28,12 @@ class BeaverBusResource extends Resource {
     @Path("routes")
     @GET
     @Timed
-    Resource getRoutes() {
-
+    Response getRoutes() {
+        def mapper = new ResourceMapper()
+        def routes = rideSystemsDAO.getRoutesForMapWithScheduleWithEncodedLine()
+        def routeResources = routes.collect{ mapper.mapRoute(it) }
+        def result = new ResultObject(data: routeResources)
+        ok(result).build()
     }
 
     @Path("routes/{id}")

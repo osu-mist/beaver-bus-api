@@ -25,12 +25,12 @@ class RideSystemsDAO {
                 .path("GetRoutesForMapWithScheduleWithEncodedLine")
                 .queryParam("ApiKey", apiKey)
                 .build()
-        println(url.toString())
+        //println(url.toString())
         def resp = httpClient.execute(new HttpGet(url))
         // XXX check http code?
         // XXX catch IO Exception?
         def body = EntityUtils.toString(resp.entity)
-        println(body)
+        //println(body)
         (List<RouteWithSchedule>) mapper.readValue(body, new TypeReference<List<RouteWithSchedule>>(){})
     }
 

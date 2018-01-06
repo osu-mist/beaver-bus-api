@@ -32,8 +32,6 @@ class BeaverBusApplication extends Application<BeaverBusConfiguration> {
                 apiKey: configuration.rideSystems.apiKey,
         )
 
-        println(rideSystemsDAO.getRoutesForMapWithScheduleWithEncodedLine())
-
         def endpointUri = configuration.api.endpointUri
         environment.jersey().register(new BeaverBusResource(rideSystemsDAO, endpointUri))
     }
