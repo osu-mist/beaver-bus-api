@@ -1,13 +1,16 @@
 package edu.oregonstate.mist.beaverbus
 
 import edu.oregonstate.mist.api.Application
-import edu.oregonstate.mist.api.Configuration
+import groovy.transform.CompileStatic
+import io.dropwizard.client.HttpClientBuilder
 import io.dropwizard.setup.Environment
+import org.apache.http.client.HttpClient
 
 /**
  * Main application class.
  */
-class BeaverBusApplication extends Application<Configuration> {
+@CompileStatic
+class BeaverBusApplication extends Application<BeaverBusConfiguration> {
     /**
      * Parses command-line arguments and runs the application.
      *
@@ -15,8 +18,23 @@ class BeaverBusApplication extends Application<Configuration> {
      * @param environment
      */
     @Override
-    public void run(Configuration configuration, Environment environment) {
+    public void run(BeaverBusConfiguration configuration, Environment environment) {
         this.setup(configuration, environment)
+
+        def httpClientBuilder = new HttpClientBuilder(environment)
+        if (configuration.httpClient != null) {
+            httpClientBuilder.using(configuration.httpClient)
+        }
+
+        def rideSystemsDAO = new RideSystemsDAO(
+                httpClient: httpClientBuilder.build("backend-http-client"),
+                baseURL: configuration.rideSystems.baseURL,
+                apiKey: configuration.rideSystems.apiKey,
+        )
+
+        println(rideSystemsDAO.getRoutesForMapWithScheduleWithEncodedLine())
+
+        //environment.jersey().register(BeaverBusResource())
     }
 
     /**

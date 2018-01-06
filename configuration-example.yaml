@@ -33,8 +33,8 @@ logging:
       threshold: ALL
       target: stdout
     - type: file
-      currentLogFilename: logs/web-api-skeleton.log
-      archivedLogFilenamePattern: logs/web-api-skeleton-%d.log.gz
+      currentLogFilename: logs/beaver-bus-api.log
+      archivedLogFilenamePattern: logs/beaver-bus-api-%d.log.gz
       archivedFileCount: 5
       threshold: ALL
       timeZone: PST
@@ -45,3 +45,18 @@ authentication:
 
 api:
   endpointUri: https://api.oregonstate.edu/v1/
+
+httpClientConfiguration:
+  timeout: 150000ms
+  connectionTimeout: 15000ms
+  timeToLive: 1h
+  cookiesEnabled: false
+  maxConnections: 2
+  maxConnectionsPerRoute: 2
+  keepAlive: 0ms
+  retries: 0
+  userAgent: beaver-bus-api
+
+rideSystems:
+  baseURL: https://example.com/JSONPRelay.svc/
+  apiKey: secret
