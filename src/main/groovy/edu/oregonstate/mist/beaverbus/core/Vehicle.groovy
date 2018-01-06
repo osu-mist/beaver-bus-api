@@ -1,6 +1,11 @@
 package edu.oregonstate.mist.beaverbus.core
 
+import groovy.transform.EqualsAndHashCode
+import groovy.transform.ToString
 
+
+@EqualsAndHashCode
+@ToString
 class VehicleAttributes {
     String routeID // routeID for route of vehicle
     String name // Name of vehicle

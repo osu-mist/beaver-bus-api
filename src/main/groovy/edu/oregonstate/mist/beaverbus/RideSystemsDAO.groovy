@@ -1,11 +1,14 @@
 package edu.oregonstate.mist.beaverbus
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import groovy.transform.CompileStatic
+import groovy.transform.ToString
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
+import org.apache.http.util.EntityUtils
 
 import javax.ws.rs.core.UriBuilder
 
@@ -22,10 +25,12 @@ class RideSystemsDAO {
                 .path("GetRoutesForMapWithScheduleWithEncodedLine")
                 .queryParam("ApiKey", apiKey)
                 .build()
+        println(url.toString())
         def resp = httpClient.execute(new HttpGet(url))
         // XXX check http code?
         // XXX catch IO Exception?
-        def body = resp.entity.toString()
+        def body = EntityUtils.toString(resp.entity)
+        println(body)
         (List<RouteWithSchedule>) mapper.readValue(body, new TypeReference<List<RouteWithSchedule>>(){})
     }
 
@@ -56,32 +61,35 @@ class RideSystemsDAO {
 // See Ride Systems Web Services documentation for an explanation of these fields
 
 @JsonIgnoreProperties(ignoreUnknown=true)
+@ToString
 class RouteWithSchedule {
-    Integer RouteID
-    String Description
-    String EncodedPolyline
+    @JsonProperty    Integer RouteID
+    @JsonProperty    String Description
+    @JsonProperty    String EncodedPolyline
     // etc
 }
 
 
 @JsonIgnoreProperties(ignoreUnknown=true)
+@ToString
 class Vehicle {
-    Integer VehicleID
-    Integer RouteID
-    String Name
-    Double Latitude
-    Double Longitude
-    Integer Seconds
+    @JsonProperty    Integer VehicleID
+    @JsonProperty    Integer RouteID
+    @JsonProperty    String Name
+    @JsonProperty    Double Latitude
+    @JsonProperty    Double Longitude
+    @JsonProperty    Integer Seconds
     // etc
 }
 
 @JsonIgnoreProperties(ignoreUnknown=true)
+@ToString
 class RouteStopArrival {
-    Integer VehicleID
-    Integer RouteID
-    String Name
-    Double Latitude
-    Double Longitude
-    Integer Seconds
+    @JsonProperty    Integer VehicleID
+    @JsonProperty    Integer RouteID
+    @JsonProperty    String Name
+    @JsonProperty    Double Latitude
+    @JsonProperty    Double Longitude
+    @JsonProperty    Integer Seconds
     // etc
 }
