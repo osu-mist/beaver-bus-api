@@ -43,11 +43,13 @@ class RideSystemsDAO {
         }
     }
 
-    List<Vehicle> getMapVehiclePoints() {
-        def url = UriBuilder.fromUri(baseURL.toURI())
-                .path("GetMapVehiclePoints")
-                .queryParam("ApiKey", apiKey)
-                .build()
+    List<Vehicle> getMapVehiclePoints(Integer routeID) {
+        def builder = UriBuilder.fromUri(baseURL.toURI()).path("GetMapVehiclePoints")
+        builder.queryParam("ApiKey", apiKey)
+        if (routeID != null) {
+            builder.queryParam("routeID", routeID)
+        }
+        def url = builder.build()
         def resp = httpClient.execute(new HttpGet(url))
         def body = EntityUtils.toString(resp.entity)
 
@@ -59,28 +61,16 @@ class RideSystemsDAO {
         }
     }
 
-    List<Vehicle> getMapVehiclePointsByRouteID(Integer routeID) {
-        def url = UriBuilder.fromUri(baseURL.toURI())
-                .path("GetMapVehiclePoints")
-                .queryParam("RouteID", routeID)
-                .queryParam("ApiKey", apiKey)
-                .build()
-        def resp = httpClient.execute(new HttpGet(url))
-        def body = EntityUtils.toString(resp.entity)
-
-        try {
-            (List<Vehicle>) mapper.readValue(body, new TypeReference<List<Vehicle>>() {})
-        } catch (JsonMappingException exc) {
-            // See previous comments
-            throw new Exception(exc)
+    List<RouteStopArrival> getStopArrivalTimes(Integer routeID, Integer stopID) {
+        def builder = UriBuilder.fromUri(baseURL.toURI()).path("GetStopArrivalTimes")
+        builder.queryParam("ApiKey", apiKey)
+        if (routeID != null) {
+            builder.queryParam("routeIDs", routeID)
         }
-    }
-
-    List<RouteStopArrival> getStopArrivalTimes() {
-        def url = UriBuilder.fromUri(baseURL.toURI())
-                .path("GetStopArrivalTimes")
-                .queryParam("ApiKey", apiKey)
-                .build()
+        if (stopID != null) {
+            builder.queryParam("routeStopIDs", stopID)
+        }
+        def url = builder.build()
         def resp = httpClient.execute(new HttpGet(url))
         def body = EntityUtils.toString(resp.entity)
         println(body)

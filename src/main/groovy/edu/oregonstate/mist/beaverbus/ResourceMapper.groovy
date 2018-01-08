@@ -30,6 +30,8 @@ class ResourceMapper {
                 ),
                 links: [
                         self: UriBuilder.fromUri(endpointUri).path("routes/{id}").build(route.RouteID)
+                        // TODO: add arrivals link
+                        // TODO: add vehicles link
                 ],
         )
     }
