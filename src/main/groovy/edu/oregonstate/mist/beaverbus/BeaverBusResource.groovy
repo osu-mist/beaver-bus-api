@@ -12,6 +12,7 @@ import javax.ws.rs.PathParam
 import javax.ws.rs.Produces
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
+import javax.ws.rs.core.UriBuilder
 
 @Path("beaverbus")
 @Produces(MediaType.APPLICATION_JSON)
@@ -20,10 +21,12 @@ import javax.ws.rs.core.Response
 class BeaverBusResource extends Resource {
     private final RideSystemsDAO rideSystemsDAO
     private final ResourceMapper mapper = new ResourceMapper()
+    private URI myEndpointUri
 
     BeaverBusResource(RideSystemsDAO rideSystemsDAO, URI endpointUri) {
         this.rideSystemsDAO = rideSystemsDAO
         this.endpointUri = endpointUri
+        this.myEndpointUri = endpointUri
     }
 
     @Path("routes")
@@ -31,8 +34,12 @@ class BeaverBusResource extends Resource {
     @Timed
     Response getRoutes() {
         def routes = rideSystemsDAO.getRoutesForMapWithScheduleWithEncodedLine()
-        def routeResources = routes.collect{ mapper.mapRoute(it) }
-        def result = new ResultObject(data: routeResources)
+        def routeResources = routes.collect{ mapper.mapRoute(it, myEndpointUri) }
+        def selfLink = UriBuilder.fromUri(myEndpointUri).path("routes").build()
+        def result = new ResultObject(
+                data: routeResources,
+                links: [self: selfLink],
+        )
         ok(result).build()
     }
 
@@ -40,13 +47,15 @@ class BeaverBusResource extends Resource {
     @GET
     @Timed
     Response getSingleRoute(@PathParam("id") Integer id) {
+        // RideSystems does not supply any way to get just a single route,
+        // so we have to fetch them all and then filter out the one we want
         def routes = rideSystemsDAO.getRoutesForMapWithScheduleWithEncodedLine()
         def route = routes.find{ it.RouteID == id }
         if (route == null) {
             return notFound().build()
         }
 
-        def resource = mapper.mapRoute(route)
+        def resource = mapper.mapRoute(route, myEndpointUri)
         ok(resource).build()
     }
 
@@ -55,8 +64,12 @@ class BeaverBusResource extends Resource {
     @Timed
     Response getVehicles() {
         def vehicles = rideSystemsDAO.getMapVehiclePoints()
-        def vehicleResources = vehicles.collect{ mapper.mapVehicle(it) }
-        def result = new ResultObject(data: vehicleResources)
+        def vehicleResources = vehicles.collect{ mapper.mapVehicle(it, myEndpointUri) }
+        def selfLink = UriBuilder.fromUri(myEndpointUri).path("vehicles").build()
+        def result = new ResultObject(
+                data: vehicleResources,
+                links: [self: selfLink],
+        )
         ok(result).build()
     }
 
@@ -64,12 +77,14 @@ class BeaverBusResource extends Resource {
     @GET
     @Timed
     Response getSingleVehicle(@PathParam("id") Integer id) {
+        // RideSystems does not supply any way to get just a single vehicle,
+        // so we have to fetch them all and then filter out the one we want
         def vehicles = rideSystemsDAO.getMapVehiclePoints()
         def vehicle = vehicles.find{ it.VehicleID == id }
         if (vehicle == null) {
             return notFound().build()
         }
-        def resource = mapper.mapVehicle(vehicle)
+        def resource = mapper.mapVehicle(vehicle, myEndpointUri)
         ok(resource).build()
     }
 
@@ -78,8 +93,12 @@ class BeaverBusResource extends Resource {
     @Timed
     Response getArrivals() {
         def arrivals = rideSystemsDAO.getStopArrivalTimes()
-        def arrivalResources = arrivals.collect{ mapper.mapArrival(it) }
-        def result = new ResultObject(data: arrivalResources)
+        def arrivalResources = arrivals.collect{ mapper.mapArrival(it, myEndpointUri) }
+        def selfLink = UriBuilder.fromUri(myEndpointUri).path("arrivals").build()
+        def result = new ResultObject(
+                data: arrivalResources,
+                links: [self: selfLink],
+        )
         ok(result).build()
     }
 }

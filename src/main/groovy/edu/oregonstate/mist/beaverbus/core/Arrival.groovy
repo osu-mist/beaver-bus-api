@@ -3,20 +3,6 @@ package edu.oregonstate.mist.beaverbus.core
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 
-/*  ArrivalResourceObject:
-
-      links:
-        properties:
-          route:
-            type: string
-            format: url
-            description: Link to route resource associated with arrival
-          self:
-            type: string
-            format: url
-            description: Self link of arrival in format /arrivals?routeID=x&stopID=y
-
-    */
 
 @EqualsAndHashCode
 @ToString

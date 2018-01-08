@@ -8,13 +8,14 @@ import edu.oregonstate.mist.beaverbus.core.Stop
 import edu.oregonstate.mist.beaverbus.core.VehicleAttributes
 import groovy.transform.CompileStatic
 
+import javax.ws.rs.core.UriBuilder
 import java.time.Instant
 import java.time.temporal.ChronoField
 import java.time.temporal.ChronoUnit
 
 @CompileStatic
 class ResourceMapper {
-    static ResourceObject mapRoute(RouteWithSchedule route) {
+    static ResourceObject mapRoute(RouteWithSchedule route, URI endpointUri) {
         new ResourceObject(
                 id: route.RouteID.toString(),
                 type: "route",
@@ -26,7 +27,10 @@ class ResourceMapper {
                         longitude: route.MapLongitude,
                         zoomLevel: route.MapZoom,
                         stops: route.Stops.toSorted{ it.Order }.collect { this.mapStop(it) },
-                )
+                ),
+                links: [
+                        self: UriBuilder.fromUri(endpointUri).path("routes/{id}").build(route.RouteID)
+                ],
         )
     }
 
@@ -39,7 +43,7 @@ class ResourceMapper {
         )
     }
 
-    static ResourceObject mapVehicle(Vehicle vehicle) {
+    static ResourceObject mapVehicle(Vehicle vehicle, URI endpointUri) {
         def lastUpdated = Instant.now().truncatedTo(ChronoUnit.SECONDS)
                 .minusSeconds(vehicle.Seconds)
         new ResourceObject(
@@ -55,12 +59,15 @@ class ResourceMapper {
                         lastUpdated: lastUpdated.toString(),
                         onRoute: vehicle.IsOnRoute,
                         delayed: vehicle.IsDelayed,
-                )
+                ),
+                links: [
+                        self: UriBuilder.fromUri(endpointUri).path("vehicles/{id}").build(vehicle.VehicleID),
+                        route: UriBuilder.fromUri(endpointUri).path("routes/{id}").build(vehicle.RouteID), // TODO add to swagger
+                ],
         )
     }
 
-    static ResourceObject mapArrival(RouteStopArrival arrival) {
-        println(arrival)
+    static ResourceObject mapArrival(RouteStopArrival arrival, URI endpointUri) {
         new ResourceObject(
                 id: "0", // XXX
                 type: "arrival",
@@ -68,7 +75,15 @@ class ResourceMapper {
                         routeID: arrival.RouteID.toString(),
                         stopID: arrival.RouteStopID.toString(),
                         arrivals: arrival.Times.collect{ this.mapArrivalTime(it) },
-                )
+                ),
+                links: [
+                        self: UriBuilder.fromUri(endpointUri).path("arrivals")
+                                .queryParam("routeID", "{routeID}")
+                                .queryParam("stopID", "{stopID}")
+                                .build(arrival.RouteID, arrival.RouteStopID),
+                        route: UriBuilder.fromUri(endpointUri).path("routes/{id}")
+                                .build(arrival.RouteID),
+                ],
         )
     }
 
