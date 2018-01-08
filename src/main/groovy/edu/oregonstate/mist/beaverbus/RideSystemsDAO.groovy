@@ -66,9 +66,25 @@ class RouteWithSchedule {
     @JsonProperty    Integer RouteID
     @JsonProperty    String Description
     @JsonProperty    String EncodedPolyline
+    @JsonProperty    String MapLineColor
+    @JsonProperty    Double MapLatitude
+    @JsonProperty    Double MapLongitude
+    @JsonProperty    Integer MapZoom
+    @JsonProperty    List<RouteStop> Stops
     // etc
 }
 
+@JsonIgnoreProperties(ignoreUnknown=true)
+@ToString
+class RouteStop {
+    @JsonProperty    Integer RouteStopID
+    @JsonProperty    Integer RouteID
+    @JsonProperty    String Description
+    @JsonProperty    Double Latitude
+    @JsonProperty    Double Longitude
+    @JsonProperty    Integer Order
+    // etc
+}
 
 @JsonIgnoreProperties(ignoreUnknown=true)
 @ToString
@@ -78,18 +94,28 @@ class Vehicle {
     @JsonProperty    String Name
     @JsonProperty    Double Latitude
     @JsonProperty    Double Longitude
+    @JsonProperty    Double GroundSpeed
+    @JsonProperty    Integer Heading
     @JsonProperty    Integer Seconds
-    // etc
+    @JsonProperty    Boolean IsOnRoute
+    @JsonProperty    Boolean IsDelayed
 }
 
 @JsonIgnoreProperties(ignoreUnknown=true)
 @ToString
 class RouteStopArrival {
-    @JsonProperty    Integer VehicleID
     @JsonProperty    Integer RouteID
-    @JsonProperty    String Name
-    @JsonProperty    Double Latitude
-    @JsonProperty    Double Longitude
+    @JsonProperty    Integer RouteStopID
+    @JsonProperty    List<RouteStopArrivalTime> Times
+}
+
+@JsonIgnoreProperties(ignoreUnknown=true)
+@ToString
+class RouteStopArrivalTime {
+    @JsonProperty    Integer VehicleID
+    @JsonProperty    String Text
+    @JsonProperty    String Time
     @JsonProperty    Integer Seconds
+    @JsonProperty    Boolean IsArriving
     // etc
 }
