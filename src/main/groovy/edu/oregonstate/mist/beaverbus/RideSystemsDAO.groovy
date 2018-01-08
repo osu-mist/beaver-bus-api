@@ -3,6 +3,7 @@ package edu.oregonstate.mist.beaverbus
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import groovy.transform.CompileStatic
 import groovy.transform.ToString
@@ -31,28 +32,65 @@ class RideSystemsDAO {
         // XXX catch IO Exception?
         def body = EntityUtils.toString(resp.entity)
         //println(body)
-        (List<RouteWithSchedule>) mapper.readValue(body, new TypeReference<List<RouteWithSchedule>>(){})
+        try {
+            (List<RouteWithSchedule>) mapper.readValue(body, new TypeReference<List<RouteWithSchedule>>() {})
+        } catch (JsonMappingException exc) {
+            // Catch and wrap the jsonmappingexception.
+            // Dropwizard catches and eats any jsonmappingexception thrown during a request and
+            // returns an unhelpful error message, probably assuming that the exception was caused
+            // by a syntax error in the request body, which is not the case here
+            throw new Exception(exc)
+        }
     }
 
     List<Vehicle> getMapVehiclePoints() {
-        // get url...
-        def body=""
-        (List<Vehicle>) mapper.readValue(body, new TypeReference<List<Vehicle>>(){})
+        def url = UriBuilder.fromUri(baseURL.toURI())
+                .path("GetMapVehiclePoints")
+                .queryParam("ApiKey", apiKey)
+                .build()
+        def resp = httpClient.execute(new HttpGet(url))
+        def body = EntityUtils.toString(resp.entity)
+
+        try {
+            (List<Vehicle>) mapper.readValue(body, new TypeReference<List<Vehicle>>() {})
+        } catch (JsonMappingException exc) {
+            // See previous comments
+            throw new Exception(exc)
+        }
     }
 
     List<Vehicle> getMapVehiclePointsByRouteID(Integer routeID) {
-        def body = ""
-        (List<Vehicle>) mapper.readValue(body, new TypeReference<List<Vehicle>>(){})
-    }
+        def url = UriBuilder.fromUri(baseURL.toURI())
+                .path("GetMapVehiclePoints")
+                .queryParam("RouteID", routeID)
+                .queryParam("ApiKey", apiKey)
+                .build()
+        def resp = httpClient.execute(new HttpGet(url))
+        def body = EntityUtils.toString(resp.entity)
 
-    Vehicle getMapVehiclePointsByVehicleID(Integer vehicleID) {
-        def vehicles = getMapVehiclePoints()
-        vehicles.find { v -> v.VehicleID == vehicleID }
+        try {
+            (List<Vehicle>) mapper.readValue(body, new TypeReference<List<Vehicle>>() {})
+        } catch (JsonMappingException exc) {
+            // See previous comments
+            throw new Exception(exc)
+        }
     }
 
     List<RouteStopArrival> getStopArrivalTimes() {
-        def body = ""
-        (List<RouteStopArrival>) mapper.readValue(body, new TypeReference<List<RouteStopArrival>>(){})
+        def url = UriBuilder.fromUri(baseURL.toURI())
+                .path("GetStopArrivalTimes")
+                .queryParam("ApiKey", apiKey)
+                .build()
+        def resp = httpClient.execute(new HttpGet(url))
+        def body = EntityUtils.toString(resp.entity)
+        println(body)
+
+        try {
+            (List<RouteStopArrival>) mapper.readValue(body, new TypeReference<List<RouteStopArrival>>() {})
+        } catch (JsonMappingException exc) {
+            // See previous comments
+            throw new Exception(exc)
+        }
     }
 
 }
@@ -104,15 +142,15 @@ class Vehicle {
 @JsonIgnoreProperties(ignoreUnknown=true)
 @ToString
 class RouteStopArrival {
-    @JsonProperty    Integer RouteID
-    @JsonProperty    Integer RouteStopID
+    @JsonProperty("RouteId")    Integer RouteID
+    @JsonProperty("RouteStopId")    Integer RouteStopID
     @JsonProperty    List<RouteStopArrivalTime> Times
 }
 
 @JsonIgnoreProperties(ignoreUnknown=true)
 @ToString
 class RouteStopArrivalTime {
-    @JsonProperty    Integer VehicleID
+    @JsonProperty("VehicleId")    Integer VehicleID
     @JsonProperty    String Text
     @JsonProperty    String Time
     @JsonProperty    Integer Seconds

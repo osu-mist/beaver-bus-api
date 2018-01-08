@@ -9,6 +9,8 @@ import edu.oregonstate.mist.beaverbus.core.VehicleAttributes
 import groovy.transform.CompileStatic
 
 import java.time.Instant
+import java.time.temporal.ChronoField
+import java.time.temporal.ChronoUnit
 
 @CompileStatic
 class ResourceMapper {
@@ -38,7 +40,8 @@ class ResourceMapper {
     }
 
     static ResourceObject mapVehicle(Vehicle vehicle) {
-        def lastUpdated = Instant.now().minusSeconds(vehicle.Seconds)
+        def lastUpdated = Instant.now().truncatedTo(ChronoUnit.SECONDS)
+                .minusSeconds(vehicle.Seconds)
         new ResourceObject(
                 id: vehicle.VehicleID.toString(),
                 type: "vehicle",
@@ -57,6 +60,7 @@ class ResourceMapper {
     }
 
     static ResourceObject mapArrival(RouteStopArrival arrival) {
+        println(arrival)
         new ResourceObject(
                 id: "0", // XXX
                 type: "arrival",
@@ -71,7 +75,7 @@ class ResourceMapper {
     static ArrivalTime mapArrivalTime(RouteStopArrivalTime time) {
         new ArrivalTime(
                 vehicleID: time.VehicleID.toString(),
-                eta: Instant.now().plusSeconds(time.Seconds).toString(), // TODO use Time field
+                eta: Instant.now().truncatedTo(ChronoUnit.SECONDS).plusSeconds(time.Seconds).toString(), // TODO use Time field
         )
     }
 
