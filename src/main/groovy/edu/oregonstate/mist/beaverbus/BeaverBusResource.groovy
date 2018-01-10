@@ -14,7 +14,6 @@ import javax.ws.rs.QueryParam
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 
-
 @Path("beaverbus")
 @Produces(MediaType.APPLICATION_JSON)
 @PermitAll
@@ -35,7 +34,7 @@ class BeaverBusResource extends Resource {
     @Timed
     Response getRoutes() {
         def routes = rideSystemsDAO.getRoutesForMapWithScheduleWithEncodedLine()
-        def routeResources = routes.collect{ mapper.mapRoute(it, myEndpointUri) }
+        def routeResources = routes.collect { mapper.mapRoute(it, myEndpointUri) }
         ok(new ResultObject(data: routeResources)).build()
     }
 
@@ -46,7 +45,7 @@ class BeaverBusResource extends Resource {
         // RideSystems does not supply any way to get just a single route,
         // so we have to fetch them all and then filter out the one we want
         def routes = rideSystemsDAO.getRoutesForMapWithScheduleWithEncodedLine()
-        def route = routes.find{ it.RouteID == id }
+        def route = routes.find { it.RouteID == id }
         if (route == null) {
             return notFound().build()
         }
@@ -59,7 +58,7 @@ class BeaverBusResource extends Resource {
     @Timed
     Response getVehicles(@QueryParam('routeID') Integer routeID) {
         def vehicles = rideSystemsDAO.getMapVehiclePoints(routeID)
-        def vehicleResources = vehicles.collect{ mapper.mapVehicle(it, myEndpointUri) }
+        def vehicleResources = vehicles.collect { mapper.mapVehicle(it, myEndpointUri) }
         ok(new ResultObject(data: vehicleResources)).build()
     }
 
@@ -70,7 +69,7 @@ class BeaverBusResource extends Resource {
         // RideSystems does not supply any way to get just a single vehicle,
         // so we have to fetch them all and then filter out the one we want
         def vehicles = rideSystemsDAO.getMapVehiclePoints(null)
-        def vehicle = vehicles.find{ it.VehicleID == id }
+        def vehicle = vehicles.find { it.VehicleID == id }
         if (vehicle == null) {
             return notFound().build()
         }
@@ -86,7 +85,7 @@ class BeaverBusResource extends Resource {
             @QueryParam("stopID") Integer stopID
     ) {
         def arrivals = rideSystemsDAO.getStopArrivalTimes(routeID, stopID)
-        def arrivalResources = arrivals.collect{ mapper.mapArrival(it, myEndpointUri) }
+        def arrivalResources = arrivals.collect { mapper.mapArrival(it, myEndpointUri) }
         ok(new ResultObject(data: arrivalResources)).build()
     }
 }

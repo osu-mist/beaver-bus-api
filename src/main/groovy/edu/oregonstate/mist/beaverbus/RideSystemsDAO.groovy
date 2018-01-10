@@ -85,9 +85,7 @@ class RideSystemsDAO {
             throw new Exception(exc)
         }
     }
-
 }
-
 
 // See Ride Systems Web Services documentation for an explanation of these fields
 

@@ -3,7 +3,6 @@ package edu.oregonstate.mist.beaverbus.core
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 
-
 @EqualsAndHashCode
 @ToString
 class ArrivalAttributes {

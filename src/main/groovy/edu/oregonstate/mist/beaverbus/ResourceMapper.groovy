@@ -25,7 +25,7 @@ class ResourceMapper {
                         latitude: route.MapLatitude,
                         longitude: route.MapLongitude,
                         zoomLevel: route.MapZoom,
-                        stops: route.Stops.toSorted{ it.Order }.collect { this.mapStop(it) },
+                        stops: route.Stops.toSorted { it.Order }.collect { this.mapStop(it) },
                 ),
                 links: [
                         self: UriBuilder.fromUri(endpointUri).path("routes/{id}").build(route.RouteID)
@@ -75,7 +75,7 @@ class ResourceMapper {
                 attributes: new ArrivalAttributes(
                         routeID: arrival.RouteID.toString(),
                         stopID: arrival.RouteStopID.toString(),
-                        arrivals: arrival.Times.collect{ this.mapArrivalTime(it) },
+                        arrivals: arrival.Times.collect { this.mapArrivalTime(it) },
                 ),
                 links: [
                         self: UriBuilder.fromUri(endpointUri).path("arrivals")
