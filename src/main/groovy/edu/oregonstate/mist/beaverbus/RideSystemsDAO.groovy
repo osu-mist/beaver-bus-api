@@ -65,6 +65,9 @@ class RideSystemsDAO {
         def builder = UriBuilder.fromUri(baseURL.toURI()).path("GetStopArrivalTimes")
         builder.queryParam("ApiKey", apiKey)
         if (routeID != null) {
+            // TODO: should use builder.queryParam("routeIDs", "{id}") and
+            // builder.build(routeID), but that's painful, and this is safe
+            // if routeID is an integer
             builder.queryParam("routeIDs", routeID)
         }
         if (stopID != null) {
