@@ -21,12 +21,12 @@ import javax.ws.rs.core.Response
 class BeaverBusResource extends Resource {
     private final RideSystemsDAO rideSystemsDAO
     private final ResourceMapper mapper = new ResourceMapper()
-    private URI myEndpointUri
+    private BeaverBusUriBuilder uriBuilder
 
     BeaverBusResource(RideSystemsDAO rideSystemsDAO, URI endpointUri) {
         this.rideSystemsDAO = rideSystemsDAO
         this.endpointUri = endpointUri
-        this.myEndpointUri = endpointUri
+        this.uriBuilder = new BeaverBusUriBuilder(endpointUri)
     }
 
     @Path("routes")
@@ -34,7 +34,7 @@ class BeaverBusResource extends Resource {
     @Timed
     Response getRoutes() {
         def routes = rideSystemsDAO.getRoutesForMapWithScheduleWithEncodedLine()
-        def routeResources = routes.collect { mapper.mapRoute(it, myEndpointUri) }
+        def routeResources = routes.collect { mapper.mapRoute(it, uriBuilder) }
         ok(new ResultObject(data: routeResources)).build()
     }
 
@@ -49,7 +49,7 @@ class BeaverBusResource extends Resource {
         if (route == null) {
             return notFound().build()
         }
-        def resource = mapper.mapRoute(route, myEndpointUri)
+        def resource = mapper.mapRoute(route, uriBuilder)
         ok(new ResultObject(data: resource)).build()
     }
 
@@ -58,7 +58,7 @@ class BeaverBusResource extends Resource {
     @Timed
     Response getVehicles(@QueryParam('routeID') Integer routeID) {
         def vehicles = rideSystemsDAO.getMapVehiclePoints(routeID)
-        def vehicleResources = vehicles.collect { mapper.mapVehicle(it, myEndpointUri) }
+        def vehicleResources = vehicles.collect { mapper.mapVehicle(it, uriBuilder) }
         ok(new ResultObject(data: vehicleResources)).build()
     }
 
@@ -73,7 +73,7 @@ class BeaverBusResource extends Resource {
         if (vehicle == null) {
             return notFound().build()
         }
-        def resource = mapper.mapVehicle(vehicle, myEndpointUri)
+        def resource = mapper.mapVehicle(vehicle, uriBuilder)
         ok(new ResultObject(data: resource)).build()
     }
 
@@ -85,7 +85,7 @@ class BeaverBusResource extends Resource {
             @QueryParam("stopID") Integer stopID
     ) {
         def arrivals = rideSystemsDAO.getStopArrivalTimes(routeID, stopID)
-        def arrivalResources = arrivals.collect { mapper.mapArrival(it, myEndpointUri) }
+        def arrivalResources = arrivals.collect { mapper.mapArrival(it, uriBuilder) }
         ok(new ResultObject(data: arrivalResources)).build()
     }
 }

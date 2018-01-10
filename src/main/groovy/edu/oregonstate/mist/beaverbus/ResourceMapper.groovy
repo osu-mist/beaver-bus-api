@@ -8,13 +8,12 @@ import edu.oregonstate.mist.beaverbus.core.Stop
 import edu.oregonstate.mist.beaverbus.core.VehicleAttributes
 import groovy.transform.CompileStatic
 
-import javax.ws.rs.core.UriBuilder
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 @CompileStatic
 class ResourceMapper {
-    static ResourceObject mapRoute(RouteWithSchedule route, URI endpointUri) {
+    static ResourceObject mapRoute(RouteWithSchedule route, BeaverBusUriBuilder build) {
         new ResourceObject(
                 id: route.RouteID.toString(),
                 type: "route",
@@ -28,9 +27,9 @@ class ResourceMapper {
                         stops: route.Stops.toSorted { it.Order }.collect { this.mapStop(it) },
                 ),
                 links: [
-                        self: UriBuilder.fromUri(endpointUri).path("routes/{id}").build(route.RouteID)
-                        // TODO: add arrivals link
-                        // TODO: add vehicles link
+                        self: build.routeUri(route.RouteID)
+                        // TODO: add arrivals link?
+                        // TODO: add vehicles link?
                 ],
         )
     }
@@ -44,7 +43,7 @@ class ResourceMapper {
         )
     }
 
-    static ResourceObject mapVehicle(Vehicle vehicle, URI endpointUri) {
+    static ResourceObject mapVehicle(Vehicle vehicle, BeaverBusUriBuilder build) {
         def lastUpdated = Instant.now().truncatedTo(ChronoUnit.SECONDS)
                 .minusSeconds(vehicle.Seconds)
         new ResourceObject(
@@ -62,13 +61,13 @@ class ResourceMapper {
                         delayed: vehicle.IsDelayed,
                 ),
                 links: [
-                        self: UriBuilder.fromUri(endpointUri).path("vehicles/{id}").build(vehicle.VehicleID),
-                        route: UriBuilder.fromUri(endpointUri).path("routes/{id}").build(vehicle.RouteID), // TODO add to swagger
+                        self: build.vehicleUri(vehicle.VehicleID),
+                        route: build.routeUri(vehicle.RouteID), // TODO add to swagger
                 ],
         )
     }
 
-    static ResourceObject mapArrival(RouteStopArrival arrival, URI endpointUri) {
+    static ResourceObject mapArrival(RouteStopArrival arrival, BeaverBusUriBuilder build) {
         new ResourceObject(
                 id: "0", // XXX
                 type: "arrival",
@@ -78,20 +77,18 @@ class ResourceMapper {
                         arrivals: arrival.Times.collect { this.mapArrivalTime(it) },
                 ),
                 links: [
-                        self: UriBuilder.fromUri(endpointUri).path("arrivals")
-                                .queryParam("routeID", "{routeID}")
-                                .queryParam("stopID", "{stopID}")
-                                .build(arrival.RouteID, arrival.RouteStopID),
-                        route: UriBuilder.fromUri(endpointUri).path("routes/{id}")
-                                .build(arrival.RouteID),
+                        self: build.arrivalUri(arrival.RouteID, arrival.RouteStopID),
+                        route: build.routeUri(arrival.RouteID),
                 ],
         )
     }
 
     static ArrivalTime mapArrivalTime(RouteStopArrivalTime time) {
+        // TODO use Time field
+        def eta = Instant.now().truncatedTo(ChronoUnit.SECONDS).plusSeconds(time.Seconds)
         new ArrivalTime(
                 vehicleID: time.VehicleID.toString(),
-                eta: Instant.now().truncatedTo(ChronoUnit.SECONDS).plusSeconds(time.Seconds).toString(), // TODO use Time field
+                eta: eta.toString(),
         )
     }
 

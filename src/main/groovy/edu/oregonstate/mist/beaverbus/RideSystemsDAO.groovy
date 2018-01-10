@@ -33,7 +33,8 @@ class RideSystemsDAO {
         def body = EntityUtils.toString(resp.entity)
         //println(body)
         try {
-            (List<RouteWithSchedule>) mapper.readValue(body, new TypeReference<List<RouteWithSchedule>>() {})
+            (List<RouteWithSchedule>) mapper.readValue(body,
+                    new TypeReference<List<RouteWithSchedule>>() {})
         } catch (JsonMappingException exc) {
             // Catch and wrap the jsonmappingexception.
             // Dropwizard catches and eats any jsonmappingexception thrown during a request and
@@ -79,7 +80,8 @@ class RideSystemsDAO {
         println(body)
 
         try {
-            (List<RouteStopArrival>) mapper.readValue(body, new TypeReference<List<RouteStopArrival>>() {})
+            (List<RouteStopArrival>) mapper.readValue(body,
+                    new TypeReference<List<RouteStopArrival>>() {})
         } catch (JsonMappingException exc) {
             // See previous comments
             throw new Exception(exc)

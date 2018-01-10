@@ -12,7 +12,8 @@ class RouteAttributes {
     Double latitude // Default latitude to go to when selecting route on map
     Double longitude // Default longitude to go to when selecting route on map
     Integer zoomLevel // Default zoom level to use when selecting route on map
-    List<Stop> stops // Locations where the bus stops along the route. Stops are in the order at which they are arrived at.
+    List<Stop> stops // Locations where the bus stops along the route.
+                     // Stops are in the order at which they are arrived at.
 }
 
 @EqualsAndHashCode
