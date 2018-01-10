@@ -13,7 +13,7 @@ import javax.ws.rs.Produces
 import javax.ws.rs.QueryParam
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
-import javax.ws.rs.core.UriBuilder
+
 
 @Path("beaverbus")
 @Produces(MediaType.APPLICATION_JSON)
@@ -36,12 +36,7 @@ class BeaverBusResource extends Resource {
     Response getRoutes() {
         def routes = rideSystemsDAO.getRoutesForMapWithScheduleWithEncodedLine()
         def routeResources = routes.collect{ mapper.mapRoute(it, myEndpointUri) }
-        def selfLink = UriBuilder.fromUri(myEndpointUri).path("routes").build()
-        def result = new ResultObject(
-                data: routeResources,
-                links: [self: selfLink],
-        )
-        ok(result).build()
+        ok(new ResultObject(data: routeResources)).build()
     }
 
     @Path("routes/{id}")
@@ -55,9 +50,8 @@ class BeaverBusResource extends Resource {
         if (route == null) {
             return notFound().build()
         }
-
         def resource = mapper.mapRoute(route, myEndpointUri)
-        ok(resource).build()
+        ok(new ResultObject(data: resource)).build()
     }
 
     @Path("vehicles")
@@ -66,12 +60,7 @@ class BeaverBusResource extends Resource {
     Response getVehicles(@QueryParam('routeID') Integer routeID) {
         def vehicles = rideSystemsDAO.getMapVehiclePoints(routeID)
         def vehicleResources = vehicles.collect{ mapper.mapVehicle(it, myEndpointUri) }
-        def selfLink = UriBuilder.fromUri(myEndpointUri).path("vehicles").build()
-        def result = new ResultObject(
-                data: vehicleResources,
-                links: [self: selfLink],
-        )
-        ok(result).build()
+        ok(new ResultObject(data: vehicleResources)).build()
     }
 
     @Path("vehicles/{id}")
@@ -86,7 +75,7 @@ class BeaverBusResource extends Resource {
             return notFound().build()
         }
         def resource = mapper.mapVehicle(vehicle, myEndpointUri)
-        ok(resource).build()
+        ok(new ResultObject(data: resource)).build()
     }
 
     @Path("arrivals")
@@ -98,11 +87,6 @@ class BeaverBusResource extends Resource {
     ) {
         def arrivals = rideSystemsDAO.getStopArrivalTimes(routeID, stopID)
         def arrivalResources = arrivals.collect{ mapper.mapArrival(it, myEndpointUri) }
-        def selfLink = UriBuilder.fromUri(myEndpointUri).path("arrivals").build()
-        def result = new ResultObject(
-                data: arrivalResources,
-                links: [self: selfLink],
-        )
-        ok(result).build()
+        ok(new ResultObject(data: arrivalResources)).build()
     }
 }
