@@ -14,6 +14,6 @@ class ArrivalAttributes {
 @EqualsAndHashCode
 @ToString
 class ArrivalTime {
-    String eta       // Time and date that route is expected to arrive at stop
     String vehicleID // vehicleID of vehicle that is arriving
+    String eta       // Time and date that route is expected to arrive at stop
 }
