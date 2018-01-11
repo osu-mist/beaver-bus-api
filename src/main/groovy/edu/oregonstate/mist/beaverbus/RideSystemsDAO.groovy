@@ -132,18 +132,18 @@ class Vehicle {
 @JsonIgnoreProperties(ignoreUnknown=true)
 @ToString
 class RouteStopArrival {
-    @JsonProperty("RouteId")    Integer RouteID
+    @JsonProperty("RouteId")        Integer RouteID
     @JsonProperty("RouteStopId")    Integer RouteStopID
-    @JsonProperty    List<RouteStopArrivalTime> Times
+    @JsonProperty                   List<RouteStopArrivalTime> Times
 }
 
 @JsonIgnoreProperties(ignoreUnknown=true)
 @ToString
 class RouteStopArrivalTime {
-    @JsonProperty("VehicleId")    Integer VehicleID
-    @JsonProperty    String Text
-    @JsonProperty    String Time
-    @JsonProperty    Integer Seconds
-    @JsonProperty    Boolean IsArriving
+    @JsonProperty("VehicleId")  Integer VehicleID
+    @JsonProperty               String Text
+    @JsonProperty               String Time
+    @JsonProperty               Integer Seconds
+    @JsonProperty               Boolean IsArriving
     // etc
 }
