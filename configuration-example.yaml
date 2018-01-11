@@ -46,7 +46,7 @@ authentication:
 api:
   endpointUri: https://api.oregonstate.edu/v1/
 
-httpClientConfiguration:
+httpClient:
   timeout: 150000ms
   connectionTimeout: 15000ms
   timeToLive: 1h
