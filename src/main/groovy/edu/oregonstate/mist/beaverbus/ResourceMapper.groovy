@@ -101,6 +101,6 @@ class ResourceMapper {
         if (!m.matches()) {
             throw new Exception("not a valid date")
         }
-        return Instant.ofEpochMilli(Long.parseLong(m.group(1)))
+        Instant.ofEpochMilli(Long.parseLong(m.group(1)))
     }
 }
