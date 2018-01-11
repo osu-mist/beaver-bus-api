@@ -70,7 +70,9 @@ class ResourceMapper {
 
     static ResourceObject mapArrival(RouteStopArrival arrival, BeaverBusUriBuilder build) {
         new ResourceObject(
-                id: "0", // XXX
+                // RouteStopID seems to be unique for each stop, across all routes, even
+                // though some routes nominally share some stops.
+                id: arrival.RouteStopID.toString(),
                 type: "arrival",
                 attributes: new ArrivalAttributes(
                         routeID: arrival.RouteID.toString(),
