@@ -32,7 +32,8 @@ class BeaverBusApplication extends Application<BeaverBusConfiguration> {
                 apiKey: configuration.rideSystems.apiKey,
         )
 
-        // TODO: add health check
+        environment.healthChecks().register("RideSystems",
+                new RideSystemsHealthCheck(rideSystemsDAO))
 
         def endpointUri = configuration.api.endpointUri
         environment.jersey().register(new BeaverBusResource(rideSystemsDAO, endpointUri))
