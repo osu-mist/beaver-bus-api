@@ -1,13 +1,13 @@
+package edu.oregonstate.mist.beaverbus
+
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
-import edu.oregonstate.mist.beaverbus.BeaverBusUriBuilder
-import edu.oregonstate.mist.beaverbus.ResourceMapper
-import edu.oregonstate.mist.beaverbus.RouteStop
-import edu.oregonstate.mist.beaverbus.RouteWithSchedule
 import edu.oregonstate.mist.beaverbus.core.RouteAttributes
 import edu.oregonstate.mist.beaverbus.core.Stop
 import groovy.transform.CompileStatic
-import org.junit.Assert
+import groovy.test.GroovyAssert
 import org.junit.Test
+
+import java.time.Instant
 
 @CompileStatic
 class ResourceMapperTest {
@@ -74,8 +74,19 @@ class ResourceMapperTest {
                 ]
         )
 
-
         def actual = mapper.mapRoute(input, uriBuilder)
         assert actual == expected
+    }
+
+    @Test
+    void testParseDate() {
+        GroovyAssert.shouldFail { ResourceMapper.parseDate("") }
+        GroovyAssert.shouldFail { ResourceMapper.parseDate("Date(0)") }
+        GroovyAssert.shouldFail { ResourceMapper.parseDate("/Date(xxx)/") }
+        GroovyAssert.shouldFail { ResourceMapper.parseDate("xxx/Date(1)/xxx") }
+        assert ResourceMapper.parseDate("/Date(0)/") == Instant.ofEpochMilli(0)
+        assert ResourceMapper.parseDate("/Date(0)/").toString() == "1970-01-01T00:00:00Z"
+        assert ResourceMapper.parseDate("/Date(946684800000)/") == Instant.ofEpochMilli(946684800000)
+        assert ResourceMapper.parseDate("/Date(946684800000)/").toString() == "2000-01-01T00:00:00Z"
     }
 }
