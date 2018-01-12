@@ -37,7 +37,9 @@ class ResourceMapper {
 
     static Stop mapStop(RouteStop stop) {
         new Stop(
-                stopID: stop.RouteStopID.toString(), // TODO
+
+                stopID: stop.RouteStopID.toString(),
+
                 description: stop.Description,
                 latitude: stop.Latitude,
                 longitude: stop.Longitude,
@@ -71,8 +73,10 @@ class ResourceMapper {
     static ResourceObject mapArrival(RouteStopArrival arrival, BeaverBusUriBuilder build) {
         new ResourceObject(
                 // RouteStopID seems to be unique for each stop, across all routes, even
-                // though some routes nominally share some stops.
+                // though some routes nominally share some stops, so this should uniquely
+                // identify the arrival object.
                 id: arrival.RouteStopID.toString(),
+
                 type: "arrival",
                 attributes: new ArrivalAttributes(
                         routeID: arrival.RouteID.toString(),
