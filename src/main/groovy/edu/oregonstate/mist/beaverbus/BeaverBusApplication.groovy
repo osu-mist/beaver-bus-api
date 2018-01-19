@@ -4,7 +4,10 @@ import edu.oregonstate.mist.api.Application
 import groovy.transform.CompileStatic
 import io.dropwizard.client.HttpClientBuilder
 import io.dropwizard.setup.Environment
-import org.apache.http.client.HttpClient
+import org.apache.http.conn.ssl.DefaultHostnameVerifier
+
+import javax.net.ssl.HostnameVerifier
+import javax.net.ssl.SSLSession
 
 /**
  * Main application class.
@@ -22,9 +25,22 @@ class BeaverBusApplication extends Application<BeaverBusConfiguration> {
         this.setup(configuration, environment)
 
         def httpClientBuilder = new HttpClientBuilder(environment)
+
         if (configuration.httpClient != null) {
             httpClientBuilder.using(configuration.httpClient)
         }
+
+        httpClientBuilder.using(new HostnameVerifier() {
+            HostnameVerifier verifier = new DefaultHostnameVerifier()
+            @Override
+            boolean verify(String s, SSLSession sslSession) {
+                // We use a custom domain for the RideSystems API,
+                // but the certificate is only valid for ridesystems.net, *.ridesystems.net.
+                // As a workaround, accept any certificate which is valid for ridesystems.net
+                // as valid for any domain name
+                return verifier.verify(s, sslSession) || verifier.verify("ridesystems.net", sslSession)
+            }
+        })
 
         def rideSystemsDAO = new RideSystemsDAO(
                 httpClient: httpClientBuilder.build("backend-http-client"),
