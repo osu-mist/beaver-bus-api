@@ -7,10 +7,11 @@ import io.dropwizard.client.HttpClientConfiguration
 import javax.validation.constraints.NotNull
 
 class BeaverBusConfiguration extends Configuration {
-    @JsonProperty("ridesystems")
+    @JsonProperty
     @NotNull
     RideSystemsConfiguration rideSystems
 
+    @JsonProperty
     HttpClientConfiguration httpClient
 }
 
