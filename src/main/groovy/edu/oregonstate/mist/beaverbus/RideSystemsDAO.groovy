@@ -6,12 +6,20 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import groovy.transform.CompileStatic
+import groovy.transform.InheritConstructors
 import groovy.transform.ToString
+import org.apache.http.HttpResponse
+import org.apache.http.HttpStatus
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.util.EntityUtils
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 import javax.ws.rs.core.UriBuilder
+
+@InheritConstructors
+class RideSystemsException extends Exception {}
 
 @CompileStatic
 class RideSystemsDAO {
@@ -21,15 +29,14 @@ class RideSystemsDAO {
 
     ObjectMapper mapper = new ObjectMapper()
 
+    private Logger logger = LoggerFactory.getLogger("RideSystems")
+
     List<RouteWithSchedule> getRoutesForMapWithScheduleWithEncodedLine() {
-        def url = UriBuilder.fromUri(baseURL.toURI())
-                .path("GetRoutesForMapWithScheduleWithEncodedLine")
-                .queryParam("ApiKey", apiKey)
-                .build()
-        def resp = httpClient.execute(new HttpGet(url))
-        // XXX check http code?
+        def resp = this.getResponse("GetRoutesForMapWithScheduleWithEncodedLine", [:])
+
         // XXX catch IO Exception?
         def body = EntityUtils.toString(resp.entity)
+
         try {
             (List<RouteWithSchedule>) mapper.readValue(body,
                     new TypeReference<List<RouteWithSchedule>>() {})
@@ -38,51 +45,73 @@ class RideSystemsDAO {
             // Dropwizard catches and eats any jsonmappingexception thrown during a request and
             // returns an unhelpful error message, probably assuming that the exception was caused
             // by a syntax error in the request body, which is not the case here
-            throw new Exception(exc)
+            throw new RideSystemsException(exc)
         }
     }
 
     List<Vehicle> getMapVehiclePoints(Integer routeID) {
-        def builder = UriBuilder.fromUri(baseURL.toURI()).path("GetMapVehiclePoints")
-        builder.queryParam("ApiKey", apiKey)
-        if (routeID != null) {
-            builder.queryParam("routeID", routeID)
-        }
-        def url = builder.build()
-        def resp = httpClient.execute(new HttpGet(url))
+        def resp = this.getResponse("GetMapVehiclePoints", [
+                "routeID": routeID,
+        ])
+
         def body = EntityUtils.toString(resp.entity)
 
         try {
             (List<Vehicle>) mapper.readValue(body, new TypeReference<List<Vehicle>>() {})
         } catch (JsonMappingException exc) {
-            // See previous comments
-            throw new Exception(exc)
+            // See comment in getRoutesForMapWithScheduleWithEncodedLine
+            throw new RideSystemsException(exc)
         }
     }
 
     List<RouteStopArrival> getStopArrivalTimes(Integer routeID, Integer stopID) {
-        def builder = UriBuilder.fromUri(baseURL.toURI()).path("GetStopArrivalTimes")
-        builder.queryParam("ApiKey", apiKey)
-        if (routeID != null) {
-            // TODO: should use builder.queryParam("routeIDs", "{id}") and
-            // builder.build(routeID), but that's painful, and this is safe
-            // if routeID is an integer
-            builder.queryParam("routeIDs", routeID)
-        }
-        if (stopID != null) {
-            builder.queryParam("routeStopIDs", stopID)
-        }
-        def url = builder.build()
-        def resp = httpClient.execute(new HttpGet(url))
+        def resp = getResponse("GetStopArrivalTimes", [
+                "routeIDs": routeID,
+                "routeStopIDs": stopID,
+        ])
+
         def body = EntityUtils.toString(resp.entity)
 
         try {
             (List<RouteStopArrival>) mapper.readValue(body,
                     new TypeReference<List<RouteStopArrival>>() {})
         } catch (JsonMappingException exc) {
-            // See previous comments
-            throw new Exception(exc)
+            // See comment in getRoutesForMapWithScheduleWithEncodedLine
+            throw new RideSystemsException(exc)
         }
+    }
+
+    /**
+     * GetResponse executes an API call with the given endpoint and query parameters
+     * @param endpoint  endpoint name
+     * @param params    map of query parameters
+     * @return http response
+     */
+    private HttpResponse getResponse(String endpoint, Map params) {
+        def builder = UriBuilder.fromUri(baseURL.toURI())
+        builder.path(endpoint)
+
+        params.each { k, v ->
+            if (v != null) {
+                builder.queryParam(k as String, "{value}")
+                builder.resolveTemplate("value", v)
+            }
+        }
+        builder.queryParam("ApiKey", "{apiKey}")
+        builder.resolveTemplate("apiKey", apiKey)
+        def url = builder.build()
+
+        println(url)
+
+        def resp = httpClient.execute(new HttpGet(url))
+        if (resp.statusLine.statusCode != HttpStatus.SC_OK) {
+            // RideSystems always returns 200; if we get another status code here
+            // the URL must have been wrong or something
+            logger.error("non-200 status {} returned from {}", resp.statusLine, url)
+            throw new RideSystemsException("bad http status code")
+        }
+
+        return resp
     }
 }
 
