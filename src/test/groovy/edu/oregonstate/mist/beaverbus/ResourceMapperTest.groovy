@@ -10,6 +10,7 @@ import org.junit.Test
 import java.time.Instant
 
 @CompileStatic
+@SuppressWarnings(['LineLength'])
 class ResourceMapperTest {
     ResourceMapper mapper = new ResourceMapper()
     BeaverBusUriBuilder uriBuilder = new BeaverBusUriBuilder(new URI("http://example.com/"))
