@@ -37,8 +37,14 @@ class RideSystemsDAO {
         // XXX catch IO Exception?
         def body = EntityUtils.toString(resp.entity)
 
+        if (body == "") {
+            logger.error("empty response received")
+            throw new RideSystemsException("empty response received")
+        }
+
+        def routes
         try {
-            (List<RouteWithSchedule>) mapper.readValue(body,
+            routes = (List<RouteWithSchedule>) mapper.readValue(body,
                     new TypeReference<List<RouteWithSchedule>>() {})
         } catch (JsonMappingException exc) {
             // Catch and wrap the jsonmappingexception.
@@ -46,6 +52,15 @@ class RideSystemsDAO {
             // returns an unhelpful error message, probably assuming that the exception was caused
             // by a syntax error in the request body, which is not the case here
             throw new RideSystemsException(exc)
+        }
+
+        // RideSystems responds to a request with an invalid API key
+        // by returning a fake route with this error message embedded in it
+        // -- but only for this particular endpoint;
+        // other endpoints just return an empty response. Good API.
+        if (routes.size() == 1 && routes[0].Description == "Unauthorized, contact app developer") {
+            logger.error("ridesystems api key is invalid, probably")
+            throw new RideSystemsException("api returned an error")
         }
     }
 
@@ -55,6 +70,12 @@ class RideSystemsDAO {
         ])
 
         def body = EntityUtils.toString(resp.entity)
+
+        // This is how RideSystems usually responds to an invalid API key.
+        if (body == "") {
+            logger.error("response empty; api key probably invalid")
+            throw new RideSystemsException("api returned an error")
+        }
 
         try {
             (List<Vehicle>) mapper.readValue(body, new TypeReference<List<Vehicle>>() {})
@@ -71,6 +92,12 @@ class RideSystemsDAO {
         ])
 
         def body = EntityUtils.toString(resp.entity)
+
+        // This is how RideSystems usually responds to an invalid API key.
+        if (body == "") {
+            logger.error("response empty; api key probably invalid")
+            throw new RideSystemsException("api returned an error")
+        }
 
         try {
             (List<RouteStopArrival>) mapper.readValue(body,
