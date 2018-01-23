@@ -138,7 +138,7 @@ class RideSystemsDAO {
             throw new RideSystemsException("bad http status code")
         }
 
-        return resp
+        resp
     }
 }
 

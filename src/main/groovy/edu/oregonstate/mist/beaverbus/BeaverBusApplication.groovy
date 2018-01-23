@@ -38,7 +38,7 @@ class BeaverBusApplication extends Application<BeaverBusConfiguration> {
                 // but the certificate is only valid for ridesystems.net, *.ridesystems.net.
                 // As a workaround, accept any certificate which is valid for ridesystems.net
                 // as valid for any domain name
-                return verifier.verify(s, sslSession) || verifier.verify("ridesystems.net", sslSession)
+                verifier.verify(s, sslSession) || verifier.verify("ridesystems.net", sslSession)
             }
         })
 

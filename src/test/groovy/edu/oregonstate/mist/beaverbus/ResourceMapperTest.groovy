@@ -70,7 +70,7 @@ class ResourceMapperTest {
                         ]
                 ),
                 "links": [
-                        "self": new URI("http://example.com/routes/19"),
+                        "self": new URI("http://example.com/beaverbus/routes/19"),
                 ]
         )
 
