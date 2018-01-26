@@ -62,6 +62,8 @@ class RideSystemsDAO {
             logger.error("ridesystems api key is invalid, probably")
             throw new RideSystemsException("api returned an error")
         }
+
+        routes
     }
 
     List<Vehicle> getMapVehiclePoints(Integer routeID) {
