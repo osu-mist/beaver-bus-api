@@ -29,7 +29,7 @@ class RideSystemsDAO {
 
     ObjectMapper mapper = new ObjectMapper()
 
-    private Logger logger = LoggerFactory.getLogger("RideSystems")
+    private static Logger logger = LoggerFactory.getLogger(this)
 
     List<RouteWithSchedule> getRoutesForMapWithScheduleWithEncodedLine() {
         def resp = this.getResponse("GetRoutesForMapWithScheduleWithEncodedLine", [:])
@@ -130,7 +130,7 @@ class RideSystemsDAO {
         builder.resolveTemplate("apiKey", apiKey)
         def url = builder.build()
 
-        println(url)
+        logger.info("fetching {}", url)
 
         def resp = httpClient.execute(new HttpGet(url))
         if (resp.statusLine.statusCode != HttpStatus.SC_OK) {
