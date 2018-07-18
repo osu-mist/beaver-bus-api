@@ -13,21 +13,32 @@ class TestStringMethods(unittest.TestCase):
 
     # Test vehicles
     def test_vehicles(self):
-        vehicles_json = test_get(self, "vehicles", "vehicle", True)
+        valid_vehicles = test_get(self, "vehicles", "vehicle", True)
 
         # Test routeID parameter
-        try:
-            route_id = vehicles_json["data"][0]["attributes"]["routeID"]
-            filtered_vehicles = utils.get("vehicles", {"routeID": route_id})
-            validate_response(self, filtered_vehicles, 200)
-            self.assertIn(vehicles_json["data"][0],
-                          filtered_vehicles.json()["data"])
-        except IndexError:
-            warn("Can't test routeID parameter in /vehicles. No routes found")
+        validate_filter_param(self, valid_vehicles, "vehicles", "routeID")
 
     # Test arrivals
     def test_arrivals(self):
-        test_get(self, "arrivals", "arrival", False)
+        valid_arrivals = test_get(self, "arrivals", "arrival", False)
+
+        # Test routeID parameter
+        validate_filter_param(self, valid_arrivals, "arrivals", "routeID")
+
+        # Test stopID parameter
+        validate_filter_param(self, valid_arrivals, "arrivals", "stopID")
+
+
+def validate_filter_param(self, res, type, param):
+    try:
+        valid_id = res.json()["data"][0]["attributes"][param]
+        filtered_objects = utils.get(type, {param: valid_id})
+        validate_response(self, filtered_objects, 200)
+        self.assertIn(res.json()["data"][0], filtered_objects.json()["data"])
+    except IndexError:
+        warn("Can't test {param} parameter in /{type}. No {type} found".format(
+            param=param, type=type
+        ))
 
 
 def test_get(self, type, res_type, has_id):
@@ -45,7 +56,7 @@ def test_get(self, type, res_type, has_id):
         except IndexError:
             warn("Can't test GET /{0}/{{id}} with valid ID. "
                  "No {0} found".format(type))
-    return valid_types.json()
+    return valid_types
 
 
 # Checks that all fields of an object are not null
