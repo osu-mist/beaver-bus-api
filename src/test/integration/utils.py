@@ -42,9 +42,10 @@ def get_oauth2_headers(config):
     return {"Authorization": "Bearer {}".format(res.json()[token])}
 
 
-def get(endpoint):
+def get(endpoint, params=None):
     return session.get(
-        url=url_joiner((url, endpoint))
+        url=url_joiner((url, endpoint)),
+        params=params
     )
 
 

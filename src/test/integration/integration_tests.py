@@ -13,7 +13,17 @@ class TestStringMethods(unittest.TestCase):
 
     # Test vehicles
     def test_vehicles(self):
-        test_get(self, "vehicles", "vehicle", True)
+        vehicles_json = test_get(self, "vehicles", "vehicle", True)
+
+        # Test routeID parameter
+        try:
+            route_id = vehicles_json["data"][0]["attributes"]["routeID"]
+            filtered_vehicles = utils.get("vehicles", {"routeID": route_id})
+            validate_response(self, filtered_vehicles, 200)
+            self.assertIn(vehicles_json["data"][0],
+                          filtered_vehicles.json()["data"])
+        except IndexError:
+            warn("Can't test routeID parameter in /vehicles. No routes found")
 
     # Test arrivals
     def test_arrivals(self):
@@ -24,6 +34,7 @@ def test_get(self, type, res_type, has_id):
     # Test GET /type
     valid_types = utils.get(type)
     validate_response(self, valid_types, 200)
+    check_null_fields(self, valid_types.json())
 
     # Test GET /type/{id}
     if has_id:
@@ -34,6 +45,19 @@ def test_get(self, type, res_type, has_id):
         except IndexError:
             warn("Can't test GET /{0}/{{id}} with valid ID. "
                  "No {0} found".format(type))
+    return valid_types.json()
+
+
+# Checks that all fields of an object are not null
+def check_null_fields(self, object):
+    if isinstance(object, dict):
+        for key, value in object.items():
+            check_null_fields(self, value)
+    elif isinstance(object, list):
+        for value in object:
+            check_null_fields(self, value)
+    else:
+        self.assertIsNotNone(object)
 
 
 def validate_response(self, res, code=None, res_type=None, message=None):
