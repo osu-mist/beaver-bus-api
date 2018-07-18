@@ -2,7 +2,7 @@ import json
 import sys
 import unittest
 import utils
-from logging import warn
+from logging import warning
 
 
 class TestStringMethods(unittest.TestCase):
@@ -36,8 +36,8 @@ def validate_filter_param(self, res, type, param):
         validate_response(self, filtered_objects, 200)
         self.assertIn(res.json()["data"][0], filtered_objects.json()["data"])
     except IndexError:
-        warn("Can't test {param} parameter in /{type}. No {type} found".format(
-            param=param, type=type
+        warning("Can't test {0} parameter in /{1}. No {1} found".format(
+            param, type
         ))
 
 
@@ -49,13 +49,17 @@ def test_get(self, type, res_type, has_id):
 
     # Test GET /type/{id}
     if has_id:
+        # Valid ID
         try:
             valid_id = valid_types.json()["data"][0]["id"]
             valid_type = utils.get_by_id(type, valid_id)
             validate_response(self, valid_type, 200, res_type)
         except IndexError:
-            warn("Can't test GET /{0}/{{id}} with valid ID. "
-                 "No {0} found".format(type))
+            warning("Can't test GET /{0}/{{id}} with valid ID. "
+                    "No {0} found".format(type))
+        # Invalid ID
+        invalid_id = utils.get_by_id(type, utils.invalid_id)
+        validate_response(self, invalid_id, 404, message="Not Found")
     return valid_types
 
 
@@ -77,7 +81,7 @@ def validate_response(self, res, code=None, res_type=None, message=None):
     if res_type:
         self.assertEqual(res.json()["data"]["type"], res_type)
     if message:
-        self.assertIn(message, res.json()[0]["developerMessage"])
+        self.assertIn(message, res.json()["developerMessage"])
 
 
 if __name__ == "__main__":

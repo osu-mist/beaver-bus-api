@@ -26,6 +26,9 @@ def set_local_vars(config):
         session.headers = get_oauth2_headers(config)
     print(session.auth)
 
+    global invalid_id
+    invalid_id = config["invalid_id"]
+
 
 def get_oauth2_headers(config):
     token = "access_token"
