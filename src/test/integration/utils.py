@@ -1,7 +1,6 @@
 import argparse
 import sys
 import requests
-from requests.auth import HTTPBasicAuth
 
 
 def parse_args():
