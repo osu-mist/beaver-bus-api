@@ -14,7 +14,6 @@ def set_local_vars(config):
     global url
     url_pieces = (config["hostname"], config["version"], config["api"])
     url = url_joiner(url_pieces)
-    print("url: {}".format(url))
 
     global session
     session = requests.Session()
@@ -24,7 +23,6 @@ def set_local_vars(config):
         session.verify = False
     else:
         session.headers = get_oauth2_headers(config)
-    print(session.auth)
 
     global invalid_id
     invalid_id = config["invalid_id"]
@@ -58,4 +56,4 @@ def get_by_id(endpoint, id):
 
 
 def url_joiner(url_pieces):
-    return "/".join(piece.strip("/") for piece in url_pieces)
+    return "/".join(str(piece).strip("/") for piece in url_pieces)

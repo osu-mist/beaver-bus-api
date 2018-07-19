@@ -11,7 +11,7 @@ $ pip3 install -r requirements.txt
 
 3. Run the integration tests:
 ```bash
-$ python3 integration-tests.py -i configuration.json [-v]
+$ python3 integration_tests.py -i configuration.json [-v]
 ```
 
 ## Docker Method

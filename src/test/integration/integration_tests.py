@@ -34,7 +34,11 @@ def validate_filter_param(self, res, type, param):
         valid_id = res.json()["data"][0]["attributes"][param]
         filtered_objects = utils.get(type, {param: valid_id})
         validate_response(self, filtered_objects, 200)
-        self.assertIn(res.json()["data"][0], filtered_objects.json()["data"])
+        for object in filtered_objects.json()["data"]:
+            if object["attributes"][param] != valid_id:
+                self.fail("{} object with {} of {} found. Should be {}".format(
+                    type, param, object["attributes"][param], valid_id
+                ))
     except IndexError:
         warning("Can't test {0} parameter in /{1}. No {1} found".format(
             param, type
