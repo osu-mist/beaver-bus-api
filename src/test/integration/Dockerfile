@@ -8,4 +8,4 @@ RUN pip3 install -r requirements.txt
 
 USER nobody:nogroup
 
-ENTRYPOINT [ "python3", "integration_tests.py", "-i", "configuration.json" ]
+ENTRYPOINT [ "python3", "integration_tests.py", "-i", "configuration.json", "-v" ]

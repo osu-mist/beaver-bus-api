@@ -28,6 +28,11 @@ class TestStringMethods(unittest.TestCase):
         # Test stopID parameter
         validate_filter_param(self, valid_arrivals, "arrivals", "stopID")
 
+    @classmethod
+    def tearDownClass(self):
+        for warn in warnings:
+            warning(warn)
+
 
 def validate_filter_param(self, res, type, param):
     try:
@@ -40,9 +45,10 @@ def validate_filter_param(self, res, type, param):
                     type, param, object["attributes"][param], valid_id
                 ))
     except IndexError:
-        warning("Can't test {0} parameter in /{1}. No {1} found".format(
-            param, type
-        ))
+        warnings.append(
+            "Could not test {0} parameter in /{1}. No {1} found".format(
+                param, type
+            ))
 
 
 def test_get(self, type, res_type, has_id):
@@ -59,8 +65,8 @@ def test_get(self, type, res_type, has_id):
             valid_type = utils.get_by_id(type, valid_id)
             validate_response(self, valid_type, 200, res_type)
         except IndexError:
-            warning("Can't test GET /{0}/{{id}} with valid ID. "
-                    "No {0} found".format(type))
+            warnings.append("Could not test GET /{0}/{{id}} with valid ID. "
+                            "No {0} found".format(type))
         # Invalid ID
         invalid_id = utils.get_by_id(type, utils.invalid_id)
         validate_response(self, invalid_id, 404, message="Not Found")
@@ -93,4 +99,6 @@ if __name__ == "__main__":
     config = json.load(open(namespace.input_file))
     utils.set_local_vars(config)
     sys.argv = args
+    global warnings
+    warnings = []
     unittest.main()
