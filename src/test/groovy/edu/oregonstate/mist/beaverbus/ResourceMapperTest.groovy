@@ -81,7 +81,6 @@ class ResourceMapperTest {
 
     @Test
     void testParseDate() {
-        GroovyAssert.shouldFail { ResourceMapper.parseDate("") }
         GroovyAssert.shouldFail { ResourceMapper.parseDate("Date(0)") }
         GroovyAssert.shouldFail { ResourceMapper.parseDate("/Date(xxx)/") }
         GroovyAssert.shouldFail { ResourceMapper.parseDate("xxx/Date(1)/xxx") }
@@ -89,5 +88,7 @@ class ResourceMapperTest {
         assert ResourceMapper.parseDate("/Date(0)/").toString() == "1970-01-01T00:00:00Z"
         assert ResourceMapper.parseDate("/Date(946684800000)/") == Instant.ofEpochMilli(946684800000)
         assert ResourceMapper.parseDate("/Date(946684800000)/").toString() == "2000-01-01T00:00:00Z"
+        assert ResourceMapper.parseDate("") == null
+        assert ResourceMapper.parseDate(null) == null
     }
 }

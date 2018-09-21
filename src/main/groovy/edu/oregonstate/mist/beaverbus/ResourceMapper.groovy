@@ -91,16 +91,19 @@ class ResourceMapper {
     }
 
     static ArrivalTime mapArrivalTime(RouteStopArrivalTime time) {
-        def eta = parseDate(time.Time).truncatedTo(ChronoUnit.SECONDS)
+        def eta = parseDate(time.Time)?.truncatedTo(ChronoUnit.SECONDS)
         new ArrivalTime(
                 vehicleID: time.VehicleID.toString(),
-                eta: eta.toString(),
+                eta: eta?.toString(),
         )
     }
 
     static final Pattern DATE_REGEX = ~/^\/Date\(([0-9]*)\)\/$/
 
     static Instant parseDate(String s) {
+        if (!s) {
+            return null
+        }
         def m = DATE_REGEX.matcher(s)
         if (!m.matches()) {
             throw new Exception("not a valid date")
