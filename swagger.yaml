@@ -11,6 +11,7 @@ externalDocs:
   url: https://github.com/osu-mist/beaver-bus-api
 schemes:
   - https
+host: api.oregonstate.edu
 basePath: /v1/beaverbus
 produces:
   - application/json
@@ -18,6 +19,7 @@ paths:
   /routes:
     get:
       description: "Get bus routes."
+      operationId: getRoutes
       parameters:
         - $ref: '#/parameters/pretty'
         - $ref: '#/parameters/authorization'
@@ -29,6 +31,7 @@ paths:
   /routes/{routeID}:
     get:
       description: "Get bus route by routeID"
+      operationId: getRouteByID
       parameters:
         - in: path
           name: routeID
@@ -49,6 +52,7 @@ paths:
   /vehicles:
     get:
       description: "Get current locations of vehicles"
+      operationId: getVehicles
       parameters:
         - in: query
           name: routeID
@@ -65,6 +69,7 @@ paths:
   /vehicles/{vehicleID}:
     get:
       description: "Get current location of a vehicle by vehicleID"
+      operationId: getVehicleByID
       parameters:
         - in: path
           name: vehicleID
@@ -85,6 +90,7 @@ paths:
   /arrivals:
     get:
       description: Get arrival times for stops
+      operationId: getArrivals
       parameters:
         - in: query
           name: routeID
