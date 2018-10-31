@@ -77,6 +77,10 @@ def test_get(self, type, res_type, has_id):
 def check_null_fields(self, object):
     if isinstance(object, dict):
         for key, value in object.items():
+            if key == "eta":
+                # eta is the only field that can be null
+                continue
+
             check_null_fields(self, value)
     elif isinstance(object, list):
         for value in object:
