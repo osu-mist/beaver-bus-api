@@ -8,11 +8,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import groovy.transform.CompileStatic
 import groovy.transform.InheritConstructors
 import groovy.transform.ToString
-import org.apache.http.HttpResponse
 import org.apache.http.HttpStatus
 import org.apache.http.client.HttpClient
-import org.apache.http.client.methods.HttpGet
-import org.apache.http.util.EntityUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -29,13 +26,11 @@ class RideSystemsDAO {
 
     ObjectMapper mapper = new ObjectMapper()
 
-    private static Logger logger = LoggerFactory.getLogger(this)
+    private static Logger logger = LoggerFactory.getLogger(this.class)
 
     List<RouteWithSchedule> getRoutesForMapWithScheduleWithEncodedLine() {
-        def resp = this.getResponse("GetRoutesForMapWithScheduleWithEncodedLine", [:])
-
         // XXX catch IO Exception?
-        def body = EntityUtils.toString(resp.entity)
+        def body = this.getResponse("GetRoutesForMapWithScheduleWithEncodedLine", [:])
 
         if (body == "") {
             logger.error("empty response received")
@@ -67,11 +62,9 @@ class RideSystemsDAO {
     }
 
     List<Vehicle> getMapVehiclePoints(Integer routeID) {
-        def resp = this.getResponse("GetMapVehiclePoints", [
+        def body = this.getResponse("GetMapVehiclePoints", [
                 "routeID": routeID,
         ])
-
-        def body = EntityUtils.toString(resp.entity)
 
         // This is how RideSystems usually responds to an invalid API key.
         if (body == "") {
@@ -88,12 +81,10 @@ class RideSystemsDAO {
     }
 
     List<RouteStopArrival> getStopArrivalTimes(Integer routeID, Integer stopID) {
-        def resp = getResponse("GetStopArrivalTimes", [
+        def body = getResponse("GetStopArrivalTimes", [
                 "routeIDs": routeID,
                 "routeStopIDs": stopID,
         ])
-
-        def body = EntityUtils.toString(resp.entity)
 
         // This is how RideSystems usually responds to an invalid API key.
         if (body == "") {
@@ -114,9 +105,9 @@ class RideSystemsDAO {
      * GetResponse executes an API call with the given endpoint and query parameters
      * @param endpoint  endpoint name
      * @param params    map of query parameters
-     * @return http response
+     * @return          response body as a string
      */
-    private HttpResponse getResponse(String endpoint, Map params) {
+    private String getResponse(String endpoint, Map params) {
         def builder = UriBuilder.fromUri(baseURL.toURI())
         builder.path(endpoint)
 
@@ -128,19 +119,24 @@ class RideSystemsDAO {
         }
         builder.queryParam("ApiKey", "{apiKey}")
         builder.resolveTemplate("apiKey", apiKey)
-        def url = builder.build()
+        URL url = builder.build().toURL()
 
-        logger.info("fetching {}", url)
+        logger.debug("fetching {}", url)
 
-        def resp = httpClient.execute(new HttpGet(url))
-        if (resp.statusLine.statusCode != HttpStatus.SC_OK) {
+        def conn = (HttpURLConnection)url.openConnection()
+        String body = conn.getInputStream().withStream { stream ->
+            def body = stream.getText()
+            stream.close()
+            body
+        }
+        def rc = conn.getResponseCode()
+        if (rc != HttpStatus.SC_OK) {
             // RideSystems always returns 200; if we get another status code here
             // the URL must have been wrong or something
-            logger.error("non-200 status {} returned from {}", resp.statusLine, url)
+            logger.error("non-200 status {} returned from {}", rc, url)
             throw new RideSystemsException("bad http status code")
         }
-
-        resp
+        body
     }
 }
 
