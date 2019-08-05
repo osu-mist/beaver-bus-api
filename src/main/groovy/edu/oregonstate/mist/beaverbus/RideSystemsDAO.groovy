@@ -33,7 +33,6 @@ class RideSystemsDAO {
         def body = this.getResponse("GetRoutesForMapWithScheduleWithEncodedLine", [:])
 
         if (body == "") {
-            logger.error("empty response received")
             throw new RideSystemsException("empty response received")
         }
 
@@ -54,8 +53,7 @@ class RideSystemsDAO {
         // -- but only for this particular endpoint;
         // other endpoints just return an empty response. Good API.
         if (routes.size() == 1 && routes[0].Description == "Unauthorized, contact app developer") {
-            logger.error("ridesystems api key is invalid, probably")
-            throw new RideSystemsException("api returned an error")
+            throw new RideSystemsException("ridesystems api key is invalid, probably")
         }
 
         routes
@@ -68,8 +66,7 @@ class RideSystemsDAO {
 
         // This is how RideSystems usually responds to an invalid API key.
         if (body == "") {
-            logger.error("response empty; api key probably invalid")
-            throw new RideSystemsException("api returned an error")
+            throw new RideSystemsException("response empty; api key probably invalid")
         }
 
         try {
@@ -88,8 +85,7 @@ class RideSystemsDAO {
 
         // This is how RideSystems usually responds to an invalid API key.
         if (body == "") {
-            logger.error("response empty; api key probably invalid")
-            throw new RideSystemsException("api returned an error")
+            throw new RideSystemsException("response empty; api key probably invalid")
         }
 
         try {
@@ -105,6 +101,7 @@ class RideSystemsDAO {
      * GetResponse executes an API call with the given endpoint and query parameters
      * @param endpoint  endpoint name
      * @param params    map of query parameters
+     * @throws RideSystemsException
      * @return          response body as a string
      */
     private String getResponse(String endpoint, Map params) {
@@ -124,17 +121,18 @@ class RideSystemsDAO {
         logger.debug("fetching {}", url)
 
         def conn = (HttpURLConnection)url.openConnection()
-        String body = conn.getInputStream().withStream { stream ->
-            def body = stream.getText()
-            stream.close()
-            body
-        }
         def rc = conn.getResponseCode()
         if (rc != HttpStatus.SC_OK) {
-            // RideSystems always returns 200; if we get another status code here
-            // the URL must have been wrong or something
-            logger.error("non-200 status {} returned from {}", rc, url)
-            throw new RideSystemsException("bad http status code")
+            /*
+             * RideSystems always returns 200. If we get another status code here, the service is
+             * unavailable or the URL is wrong
+             */
+            throw new RideSystemsException("non-200 status ${rc} returned from ${url}")
+        }
+        String body = conn.getInputStream().withStream { stream ->
+            def text = stream.getText()
+            stream.close()
+            text
         }
         body
     }
