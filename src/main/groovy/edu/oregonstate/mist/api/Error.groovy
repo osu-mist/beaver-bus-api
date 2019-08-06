@@ -90,6 +90,22 @@ class Error {
         )
     }
 
+    /**
+     * Returns a new Error for a HTTP 503 ("service unavailable") response.
+     *
+     * @param message the error message
+     * @return error
+     */
+    static Error serviceUnavailable() {
+        new Error(
+            status: 503,
+            developerMessage: prop.getProperty('serviceUnavailable.developerMessage'),
+            userMessage: prop.getProperty('serviceUnavailable.userMessage'),
+            code: parseInt(prop.getProperty('serviceUnavailable.code')),
+            details: prop.getProperty('serviceUnavailable.details')
+        )
+    }
+
     private static Integer parseInt(String s) {
         if (s != null) {
             Integer.parseInt(s)

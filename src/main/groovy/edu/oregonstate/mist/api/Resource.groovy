@@ -120,6 +120,17 @@ abstract class Resource {
     }
 
     /**
+     * Returns a builder for an HTTP 503 ("service unavailable") response with an error message
+     * as body.
+     *
+     * @return service unavailable response builder
+     */
+    protected static ResponseBuilder serviceUnavailable() {
+        Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                .entity(Error.serviceUnavailable())
+    }
+
+    /**
      * Constructs a url to use in pagination links.
      *
      * The path is copied from the request path.
