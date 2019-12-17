@@ -44,7 +44,7 @@ class BeaverBusResource extends Resource {
         } catch (RideSystemsException exc) {
             String message = exc.message
             logger.error(message)
-            if (message.contains('non-200 status 503')) {
+            if (message.contains('non-200 status 503') || message.contains('non-200 status 502')) {
                 return serviceUnavailable().build()
             }
             internalServerError('unexpected response from data source').build()
