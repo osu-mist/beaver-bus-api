@@ -8,8 +8,12 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import groovy.transform.CompileStatic
 import groovy.transform.InheritConstructors
 import groovy.transform.ToString
+import org.apache.http.HttpResponse
 import org.apache.http.HttpStatus
-import org.apache.http.client.HttpClient
+import org.apache.http.client.methods.HttpGet
+import org.apache.http.impl.client.CloseableHttpClient
+import org.apache.http.impl.client.DefaultServiceUnavailableRetryStrategy
+import org.apache.http.util.EntityUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -20,13 +24,13 @@ class RideSystemsException extends Exception {}
 
 @CompileStatic
 class RideSystemsDAO {
-    HttpClient httpClient
+    CloseableHttpClient httpClient
     URL baseURL
     String apiKey
 
     ObjectMapper mapper = new ObjectMapper()
 
-    private static Logger logger = LoggerFactory.getLogger(this.class)
+    private static Logger logger = LoggerFactory.getLogger(RideSystemsDAO.class)
 
     List<RouteWithSchedule> getRoutesForMapWithScheduleWithEncodedLine() {
         // XXX catch IO Exception?
@@ -102,6 +106,7 @@ class RideSystemsDAO {
      * @param endpoint  endpoint name
      * @param params    map of query parameters
      * @throws RideSystemsException
+     * @throws IOException  if problem consuming HttpEntity
      * @return          response body as a string
      */
     private String getResponse(String endpoint, Map params) {
@@ -116,24 +121,23 @@ class RideSystemsDAO {
         }
         builder.queryParam("ApiKey", "{apiKey}")
         builder.resolveTemplate("apiKey", apiKey)
-        URL url = builder.build().toURL()
 
-        logger.debug("fetching {}", url)
+        URI uri = builder.build()
+        HttpGet get = new HttpGet(uri)
+        logger.debug(get.toString())
+        HttpResponse res = httpClient.execute(get)
 
-        def conn = (HttpURLConnection)url.openConnection()
-        def rc = conn.getResponseCode()
+        int rc = res.getStatusLine().getStatusCode()
         if (rc != HttpStatus.SC_OK) {
             /*
              * RideSystems always returns 200. If we get another status code here, the service is
              * unavailable or the URL is wrong
              */
-            throw new RideSystemsException("non-200 status ${rc} returned from ${url}")
+            throw new RideSystemsException("non-200 status ${rc} returned from ${uri}")
         }
-        String body = conn.getInputStream().withStream { stream ->
-            def text = stream.getText()
-            stream.close()
-            text
-        }
+
+        String body = res.getEntity().getContent().getText()
+        EntityUtils.consume(res.getEntity())
         body
     }
 }
