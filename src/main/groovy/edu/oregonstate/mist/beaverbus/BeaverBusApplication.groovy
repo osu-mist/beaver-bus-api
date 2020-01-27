@@ -5,7 +5,6 @@ import groovy.transform.CompileStatic
 import io.dropwizard.client.HttpClientBuilder
 import io.dropwizard.setup.Environment
 import org.apache.http.conn.ssl.DefaultHostnameVerifier
-import org.apache.http.impl.client.DefaultServiceUnavailableRetryStrategy
 
 import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.SSLSession
@@ -30,9 +29,6 @@ class BeaverBusApplication extends Application<BeaverBusConfiguration> {
         if (configuration.httpClient != null) {
             httpClientBuilder.using(configuration.httpClient)
         }
-
-        // Retry up to 30 times at 1-second intervals on a 503 (Service Unavailable) response
-        httpClientBuilder.using(new DefaultServiceUnavailableRetryStrategy(30, 1000))
 
         httpClientBuilder.using(new HostnameVerifier() {
             HostnameVerifier verifier = new DefaultHostnameVerifier()

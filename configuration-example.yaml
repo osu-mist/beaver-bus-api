@@ -48,14 +48,14 @@ api:
   endpointUri: https://api.oregonstate.edu/v1/
 
 httpClient:
-  timeout: 150000ms
-  connectionTimeout: 15000ms
+  timeout: 20000ms
+  connectionTimeout: 20000ms
   timeToLive: 1h
   cookiesEnabled: false
-  maxConnections: 2
-  maxConnectionsPerRoute: 2
+  maxConnections: 1024
+  maxConnectionsPerRoute: 1024
   keepAlive: 0ms
-  retries: 0
+  retries: 3
   userAgent: beaver-bus-api
 
 rideSystems:
