@@ -48,7 +48,7 @@ api:
   endpointUri: https://api.oregonstate.edu/v1/
 
 httpClient:
-  timeout: 20000ms
+  timeout: 50000ms
   connectionTimeout: 20000ms
   timeToLive: 1h
   cookiesEnabled: false
