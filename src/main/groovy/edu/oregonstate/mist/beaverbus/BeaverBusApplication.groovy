@@ -4,7 +4,11 @@ import edu.oregonstate.mist.api.Application
 import groovy.transform.CompileStatic
 import io.dropwizard.client.HttpClientBuilder
 import io.dropwizard.setup.Environment
+import org.apache.http.HttpResponse
+import org.apache.http.HttpStatus
+import org.apache.http.client.ServiceUnavailableRetryStrategy
 import org.apache.http.conn.ssl.DefaultHostnameVerifier
+import org.apache.http.protocol.HttpContext
 
 import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.SSLSession
@@ -29,6 +33,29 @@ class BeaverBusApplication extends Application<BeaverBusConfiguration> {
         if (configuration.httpClient != null) {
             httpClientBuilder.using(configuration.httpClient)
         }
+
+        /*
+        Data source may respond with a 502 or a 503. In either case, we want to retry the request a
+        few times
+         */
+        httpClientBuilder.using(new ServiceUnavailableRetryStrategy() {
+            @Override
+            boolean retryRequest(HttpResponse response, int executionCount, HttpContext context) {
+                int statusCode = response.getStatusLine().getStatusCode()
+                List<Integer> retryResponses = [
+                        HttpStatus.SC_SERVICE_UNAVAILABLE,
+                        HttpStatus.SC_BAD_GATEWAY
+                ]
+                // retry up to 3 times
+                statusCode in retryResponses && executionCount <= 3
+            }
+
+            @Override
+            long getRetryInterval() {
+                // retry at 1-second intervals
+                1000
+            }
+        })
 
         httpClientBuilder.using(new HostnameVerifier() {
             HostnameVerifier verifier = new DefaultHostnameVerifier()
