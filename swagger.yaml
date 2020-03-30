@@ -15,6 +15,9 @@ host: api.oregonstate.edu
 basePath: /v1/beaverbus
 produces:
   - application/json
+security:
+  - OAuth2:
+    - full
 paths:
   /routes:
     get:
